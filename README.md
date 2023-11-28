@@ -52,7 +52,7 @@ void threadFunction2() {
 + Adjust log levels and message content according to your requirements.
 
 ## Contributors
-Thong Nguyen @ZeK
+Thong Nguyen @thong-nt
 
 ## License
 This project is licensed under the MIT License.
