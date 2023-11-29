@@ -9,31 +9,37 @@
 #include <fstream>
 #include <condition_variable>
 
-namespace Log 
-{
+namespace Log {
+
+    // Namespace for different log message types
     namespace MessageLog {
 
+        // Generate Error log message
         std::string Error(std::string author, std::string content) {
             return "::[" + author + "]::[Error] -- " + content;
         };
 
-        std::string Infor(std::string author, std::string content) {
-            return "::[" + author + "]::[Infor] -- " + content;
+        // Generate Information log message
+        std::string Info(std::string author, std::string content) {
+            return "::[" + author + "]::[Info] -- " + content;
         };
 
+        // Generate Debug log message
         std::string Debug(std::string author, std::string content) {
             return "::[" + author + "]::[Debug] -- " + content;
         };
 
+        // Generate Alarm log message
         std::string Alarm(std::string author, std::string content) {
             return "::[" + author + "]::[Alarm] -- " + content;
         };
     }
 
+    // Namespace for different log export modes
     namespace ExportMode {
 
-        std::string _GetCurrentTime() 
-        {
+        // Get current system time as a formatted string
+        std::string _GetCurrentTime() {
             std::time_t t = std::time(nullptr);
             constexpr size_t bufferSize = 100; // Define a buffer size
             char timestamp[bufferSize];
@@ -41,36 +47,42 @@ namespace Log
             return std::string(timestamp); // Convert char array to std::string
         };
 
-        void Console(std::string message){
+        // Output log messages to the console
+        void Console(std::string message) {
             std::cout << _GetCurrentTime() << message << std::endl;
         };
 
-        class File{
+        // Class for logging to a file
+        class File {
         private:
             std::string filename = "";
-        public:
-            File(std::string _filename): filename(_filename){};
-            ~File(){};
 
+        public:
+            File(std::string _filename) : filename(_filename) {};
+
+            // Append a log message to the file
             void dump(std::string message) {
                 std::ofstream logFile;
                 logFile.open(filename, std::ios::out | std::ios::app);
-                if (logFile.is_open())
-                {
+                if (logFile.is_open()) {
                     logFile << _GetCurrentTime() << message << std::endl;
                 }
                 logFile.close();
             };
         };
 
-    class SynchronousLog {
+        // Class for synchronous logging
+        class SynchronousLog {
         private:
             std::queue<std::string> messageQueue;
             std::mutex mtx;
             std::condition_variable cv;
             bool stopRequested = false;
-            std::string _filename = ""; // Instance of the File class for logging to file
+            bool _disableConsole = false;
+            bool _disableFile = false;
+            std::string _filename = "";
 
+            // Logging thread function
             void loggingThreadFunc() {
                 std::ofstream logFile;
                 logFile.open(_filename, std::ios::out | std::ios::app);
@@ -88,21 +100,25 @@ namespace Log
                     lock.unlock();
 
                     // Select output method: console or file
-                    Console(message);
-                    if (logFile.is_open())
-                    {
+                    if (!_disableConsole) {
+                        Console(message);
+                    }
+                    if (!_disableFile && logFile.is_open()) {
                         logFile << _GetCurrentTime() << message << "\n";
                     }
                 }
+
                 logFile.close();
             }
 
         public:
+            // Constructor
             SynchronousLog(const std::string& filename) : _filename(filename) {
                 std::thread t(&SynchronousLog::loggingThreadFunc, this);
                 t.detach();
             }
 
+            // Destructor
             ~SynchronousLog() {
                 {
                     std::lock_guard<std::mutex> lock(mtx);
@@ -112,12 +128,24 @@ namespace Log
                 messageQueue.empty();
             }
 
+            // Add a log message to the queue
             void addMessage(const std::string& message) {
                 std::lock_guard<std::mutex> lock(mtx);
                 messageQueue.push(message);
                 cv.notify_one();
             }
 
+            // Disable console logging
+            void DisableConsole(bool var) {
+                _disableConsole = var;
+            }
+
+            // Disable file logging
+            void DisableFile(bool var) {
+                _disableFile = var;
+            }
+
+            // Get an instance of SynchronousLog
             static SynchronousLog& getInstance(const std::string& filename = "log.txt") {
                 static SynchronousLog instance(filename);
                 return instance;

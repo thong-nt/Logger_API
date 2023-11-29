@@ -9,7 +9,7 @@ void threadFunction1() {
 
 void threadFunction2() {
     // Access the logger instance and add messages
-    Log::ExportMode::SynchronousLog::getInstance().addMessage(Log::MessageLog::Infor("Thread 2", "Information message"));
+    Log::ExportMode::SynchronousLog::getInstance().addMessage(Log::MessageLog::Info("Thread 2", "Infomation message"));
 }
 
 int main() {
@@ -20,7 +20,7 @@ int main() {
 
     LogFile.dump(Log::MessageLog::Alarm("ZeK", "??????"));
 
-    LogFile.dump(Log::MessageLog::Infor("ZeK", "??????"));
+    LogFile.dump(Log::MessageLog::Info("ZeK", "??????"));
 
     LogFile.dump(Log::MessageLog::Debug("ZeK", "??????"));
 
@@ -39,7 +39,7 @@ int main() {
     // Add messages from the main thread
     logger.addMessage(Log::MessageLog::Debug("Main Thread", "Debug message from main thread"));
     logger.addMessage(Log::MessageLog::Alarm("Main Thread", "Alarm message from main thread"));
-    logger.addMessage(Log::MessageLog::Infor("Main Thread", "Debug message from main thread"));
+    logger.addMessage(Log::MessageLog::Info("Main Thread", "Debug message from main thread"));
     logger.addMessage(Log::MessageLog::Error("Main Thread", "Alarm message from main thread"));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
