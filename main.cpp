@@ -15,8 +15,8 @@ void threadFunction2() {
 int main() {
     // Creating log messages of different levels
     Log::ExportMode::File LogFile("Test.log");
-    Log::ExportMode::Console(Log::MessageLog::Error("ZeK", "??????"));
-    LogFile.dump(Log::MessageLog::Error("ZeK", "??????"));
+    Log::ExportMode::Console(Log::MessageLog::Error("ZeK", "This is an error messgae"));
+    LogFile.dump(Log::MessageLog::Error("ZeK", "This is a message to file."));
 
     LogFile.dump(Log::MessageLog::Alarm("ZeK", "??????"));
 
